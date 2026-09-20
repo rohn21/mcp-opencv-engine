@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  # ─── MCP Gateway (Lightweight, CPU only) ───
+  mcp-gateway:
+    build:
+      context: .
+      dockerfile: mcp_gateway/Dockerfile
+    container_name: mcp-gateway
+    ports:
+      - "${MCP_GATEWAY_PORT:-8000}:8000"
+    environment:
+      - DETECTION_SERVICE_URL=${DETECTION_SERVICE_URL}
+      - PROCESSING_SERVICE_URL=${PROCESSING_SERVICE_URL}
+      - DATA_DIR=${DATA_DIR}
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - object-detection
+      - image-processing
+    networks:
+      - cv-network
+
+  # ─── Object Detection (GPU - YOLO/PyTorch) ───
+  object-detection:
+    build:
+      context: .
+      dockerfile: opencv_services/object_detection/Dockerfile
+    container_name: object-detection
+    ports:
+      - "${DETECTION_PORT:-8001}:8001"
+    volumes:
+      - ./data:/app/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - cv-network
+
+  # ─── Image Processing (CPU only - OpenCV) ───
+  image-processing:
+    build:
+      context: .
+      dockerfile: opencv_services/image_processing/Dockerfile
+    container_name: image-processing
+    ports:
+      - "${PROCESSING_PORT:-8002}:8002"
+    volumes:
+      - ./data:/app/data
+    networks:
+      - cv-network
+
+networks:
+  cv-network:
+    driver: bridge

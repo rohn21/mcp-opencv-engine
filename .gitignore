@@ -1,0 +1,30 @@
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE / Editor Files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project Data & Models
+data/outputs/
+data/inputs/
+*.pt      # Ignore PyTorch YOLOv8 weights like yolov8n.pt if they are too large
+*.pth
+
+# Logs
+*.log
+/tmp/
+
+# OS Files
+.DS_Store
+Thumbs.db
