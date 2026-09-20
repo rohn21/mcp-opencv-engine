@@ -143,3 +143,119 @@ computer_vision_mcp/
 ```
 
 ---
+## Using as an MCP Server in AI IDEs
+
+This project exposes itself as an MCP server over **STDIO**. Before registering it in any IDE, ensure all three microservices are already running locally (or via Docker), then point the IDE's MCP config to `mcp_gateway/main.py`.
+
+**Pre-requisite — start the backend services first:**
+```bash
+source .venv/bin/activate
+uvicorn opencv_services.object_detection.api:app --host 0.0.0.0 --port 8001 &
+uvicorn opencv_services.image_processing.api:app --host 0.0.0.0 --port 8002 &
+uvicorn opencv_services.ocr_service.api:app --host 0.0.0.0 --port 8003 &
+```
+
+---
+
+### Claude Desktop
+
+Edit `claude_desktop_config.json` (usually at `~/.claude/claude_desktop_config.json` on Linux/macOS or `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
+
+```json
+{
+  "mcpServers": {
+    "cv-mcp-gateway": {
+      "command": "/absolute/path/to/computer_vision_mcp/.venv/bin/python3",
+      "args": ["/absolute/path/to/computer_vision_mcp/mcp_gateway/main.py"],
+      "env": {
+        "DETECTION_SERVICE_URL": "http://localhost:8001",
+        "PROCESSING_SERVICE_URL": "http://localhost:8002",
+        "OCR_SERVICE_URL": "http://localhost:8003"
+      }
+    }
+  }
+}
+```
+
+---
+
+### Cursor
+
+Open **Cursor Settings → Features → MCP Servers** or directly edit `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "cv-mcp-gateway": {
+      "command": "/absolute/path/to/computer_vision_mcp/.venv/bin/python3",
+      "args": ["/absolute/path/to/computer_vision_mcp/mcp_gateway/main.py"],
+      "env": {
+        "DETECTION_SERVICE_URL": "http://localhost:8001",
+        "PROCESSING_SERVICE_URL": "http://localhost:8002",
+        "OCR_SERVICE_URL": "http://localhost:8003"
+      }
+    }
+  }
+}
+```
+
+Then restart Cursor. The tools (`apply_image_filter`, `detect_objects`, `blur_faces_in_image`, `extract_text_from_image`) will appear in the Composer tool list.
+
+---
+
+### Antigravity (Google DeepMind)
+
+Edit the MCP settings file at `~/.gemini/antigravity/mcp_settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "cv-mcp-gateway": {
+      "command": "/absolute/path/to/computer_vision_mcp/.venv/bin/python3",
+      "args": ["/absolute/path/to/computer_vision_mcp/mcp_gateway/main.py"],
+      "env": {
+        "DETECTION_SERVICE_URL": "http://localhost:8001",
+        "PROCESSING_SERVICE_URL": "http://localhost:8002",
+        "OCR_SERVICE_URL": "http://localhost:8003"
+      }
+    }
+  }
+}
+```
+
+---
+
+### Windsurf (Codeium)
+
+Edit `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "cv-mcp-gateway": {
+      "command": "/absolute/path/to/computer_vision_mcp/.venv/bin/python3",
+      "args": ["/absolute/path/to/computer_vision_mcp/mcp_gateway/main.py"],
+      "env": {
+        "DETECTION_SERVICE_URL": "http://localhost:8001",
+        "PROCESSING_SERVICE_URL": "http://localhost:8002",
+        "OCR_SERVICE_URL": "http://localhost:8003"
+      }
+    }
+  }
+}
+```
+
+---
+
+### Any MCP-Compatible Client (Generic)
+
+Any IDE or tool that supports the MCP standard can integrate this server using the universal pattern below:
+
+| Field     | Value |
+|-----------|-------|
+| Transport | `stdio` |
+| Command   | `/path/to/.venv/bin/python3` |
+| Args      | `["/path/to/mcp_gateway/main.py"]` |
+| Env vars  | `DETECTION_SERVICE_URL`, `PROCESSING_SERVICE_URL`, `OCR_SERVICE_URL` |
+
+> **Tip:** Replace all `/absolute/path/to/computer_vision_mcp` with the actual path where you cloned this repo. On Linux you can find it quickly by running `pwd` from inside the project folder.
