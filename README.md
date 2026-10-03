@@ -71,7 +71,7 @@ The **MCP Gateway** is a lightweight FastMCP server that receives tool calls fro
 | CPU              | Intel Core i5 11th Gen or equivalent      |
 | RAM              | 8 GB (16 GB recommended)                  |
 | Storage          | SSD strongly recommended                  |
-| GPU              | Optional — NVIDIA GPU enables EasyOCR acceleration |
+| GPU              | Optional — NVIDIA GPU enables YOLO and OCR acceleration (set OCR_USE_GPU=true) |
 | OS               | Linux (Ubuntu 20.04+) or Windows 10+      |
 | Python           | 3.10+                                     |
 | Docker           | 24.0+                                     |
@@ -103,7 +103,7 @@ python mcp_gateway/main.py
 docker compose up --build
 ```
 
-> Ensure the `.env` file has `DETECTION_SERVICE_URL`, `PROCESSING_SERVICE_URL`, and `DATA_DIR` set if you want to override defaults.
+> Set `OCR_USE_GPU=true` in your environment or `.env` file if you have an NVIDIA GPU and want EasyOCR acceleration. Ensure the `.env` file has `DETECTION_SERVICE_URL`, `PROCESSING_SERVICE_URL`, and `DATA_DIR` set if you want to override defaults.
 
 ---
 

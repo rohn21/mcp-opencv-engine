@@ -25,9 +25,10 @@ active_engine = "tesseract"
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global ocr_reader, ocr_loaded, active_engine
+    ocr_use_gpu = os.getenv("OCR_USE_GPU", "false").lower() == "true"
     if PREFERRED_ENGINE == "easyocr":
         try:
-            ocr_reader = easyocr.Reader(['en'], gpu=False)
+            ocr_reader = easyocr.Reader(['en'], gpu=ocr_use_gpu)
             active_engine = "easyocr"
         except Exception:
             active_engine = "tesseract"

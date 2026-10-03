@@ -10,14 +10,16 @@ services:
     ports:
       - "${MCP_GATEWAY_PORT:-8000}:8000"
     environment:
-      - DETECTION_SERVICE_URL=${DETECTION_SERVICE_URL}
-      - PROCESSING_SERVICE_URL=${PROCESSING_SERVICE_URL}
-      - DATA_DIR=${DATA_DIR}
+      - DETECTION_SERVICE_URL=http://object-detection:8001
+      - PROCESSING_SERVICE_URL=http://image-processing:8002
+      - OCR_SERVICE_URL=http://ocr-service:8003
+      - DATA_DIR=/app/data
     volumes:
       - ./data:/app/data
     depends_on:
       - object-detection
       - image-processing
+      - ocr-service
     networks:
       - cv-network
 
