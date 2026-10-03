@@ -16,10 +16,25 @@ from shared.schemas import OCRRequest, OCRResponse
 from shared.image_utils import validate_image
 
 
+PREFERRED_ENGINE = os.getenv("OCR_ENGINE", "easyocr").lower()
+
+ocr_reader = None
+ocr_loaded = False
+active_engine = "tesseract"
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global ocr_reader, ocr_loaded
-    ocr_reader = easyocr.Reader(['en'], gpu=False)
+    global ocr_reader, ocr_loaded, active_engine
+    if PREFERRED_ENGINE == "easyocr":
+        try:
+            ocr_reader = easyocr.Reader(['en'], gpu=False)
+            active_engine = "easyocr"
+        except Exception:
+            active_engine = "tesseract"
+            ocr_reader = None
+    else:
+        active_engine = "tesseract"
+        
     ocr_loaded = True
     yield
     
@@ -28,28 +43,21 @@ app = FastAPI(title="OCR Service (Dual-Engine: EasyOCR + Tesseract)", lifespan=l
 DATA_DIR = Path(os.getenv("DATA_DIR", "./data")).resolve()
 OUTPUT_DIR = DATA_DIR / "outputs"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-PREFERRED_ENGINE = os.getenv("OCR_ENGINE", "easyocr").lower()
-
-ocr_reader = None
-ocr_loaded = False
-active_engine = "tesseract"
-
-if PREFERRED_ENGINE == "easyocr":
-    try:
-        import easyocr
-        ocr_reader = easyocr.Reader(['en'], gpu=False)
-        active_engine = "easyocr"
-    except Exception as e:
-        active_engine = "tesseract"
         
 
 @app.get("/health")
 def health_check():
-    """Returns 200 only when the EasyOCR model is fully loaded."""
-    if not ocr_loaded or ocr_reader is None:
+    """Returns 200 when an OCR engine is fully loaded and ready."""
+    if not ocr_loaded:
         raise HTTPException(status_code=503, detail="OCR model is still loading...")
-    return {"status": "healthy", "active_engine": active_engine, "note": "If active_engine is 'tesseract', EasyOCR failed to load or was disabled."
+    
+    if active_engine == "easyocr" and ocr_reader is None:
+        raise HTTPException(status_code=503, detail="EasyOCR model is still loading...")
+        
+    return {
+        "status": "healthy", 
+        "active_engine": active_engine, 
+        "note": "If active_engine is 'tesseract', EasyOCR failed to load or was disabled."
     }
 
 
