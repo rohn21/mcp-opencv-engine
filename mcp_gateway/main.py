@@ -8,6 +8,8 @@ from utils.assets_manager import list_available_images
 mcp = FastMCP(
     name="CV-MCP-Gateway",
     version="1.0.0",
+    host="0.0.0.0",
+    port=8000,
 )
 
 register_detection_tools(mcp)
@@ -37,4 +39,6 @@ def full_image_analysis(image_path: str) -> str:
     """
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(
+        transport="streamable-http",
+    )
