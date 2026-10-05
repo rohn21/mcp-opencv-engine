@@ -2,10 +2,15 @@ import os
 import json
 import httpx
 from mcp.server.fastmcp import FastMCP
+from utils.logger import logger
 
 
 DETECTION_URL = os.getenv("DETECTION_SERVICE_URL", "http://object-detection:8001")
-OCR_URL = os.getenv("OCR_SERVICE_URL", "http://172.17.0.1:8003")
+OCR_URL = os.getenv(
+    "OCR_SERVICE_URL",
+    "http://ocr-service:8003"
+)
+
 
 def register_detection_tools(mcp: FastMCP):
     
@@ -26,6 +31,9 @@ def register_detection_tools(mcp: FastMCP):
         RETURNS: JSON with detected object names, confidence scores, bounding box coordinates, 
         and the path to the annotated image (with boxes drawn).
         """
+        logger.info("Tool: detect_objects")
+        logger.info(f"Image: {image_path}")
+        logger.info(f"→ {DETECTION_URL.replace('http://', '')}")
         async with httpx.AsyncClient(timeout=60.0) as client:
 
             health = await client.get(f"{DETECTION_URL}/health")
@@ -39,8 +47,10 @@ def register_detection_tools(mcp: FastMCP):
         
         if resp.status_code != 200:
             return f"Error: Detection service returned {resp.status_code} - {resp.text}"
-        
-        return json.dumps(resp.json(), indent=2)
+
+        data = resp.json()
+        logger.info(f"← {len(data.get('objects', []))} objects detected")
+        return json.dumps(data, indent=2)
 
     @mcp.tool()
     async def extract_text_from_image(image_path: str) -> str:
@@ -58,6 +68,9 @@ def register_detection_tools(mcp: FastMCP):
         RETURNS: JSON containing the full concatenated extracted text, and a list of individual 
         text blocks with their specific bounding box coordinates and confidence scores.
         """
+        logger.info("Tool: extract_text_from_image")
+        logger.info(f"Image: {image_path}")
+        logger.info(f"→ {OCR_URL.replace('http://', '')}")
         async with httpx.AsyncClient(timeout=120.0) as client:
             resp = await client.post(f"{OCR_URL}/extract_text", json={
                 "image_path": image_path,
@@ -66,5 +79,7 @@ def register_detection_tools(mcp: FastMCP):
 
         if resp.status_code != 200:
             return f"Error: OCR service returned {resp.status_code} - {resp.text}"
-
-        return json.dumps(resp.json(), indent=2)
+        
+        data = resp.json()
+        logger.info(f"Extracted text:\n{data.get('text', '')[:200]}...")
+        return json.dumps(data, indent=2)

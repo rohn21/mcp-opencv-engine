@@ -2,6 +2,7 @@ import os
 import json
 import httpx
 from mcp.server.fastmcp import FastMCP
+from utils.logger import logger
 
 PROCESSING_URL = os.getenv("PROCESSING_SERVICE_URL", "http://image-processing:8002")
 
@@ -26,6 +27,10 @@ def register_processing_tools(mcp: FastMCP):
             
         RETURNS: JSON containing the output image path and dimension changes.
         """
+        logger.info("Tool: apply_image_filter")
+        logger.info(f"Filter: {filter_type}")
+        logger.info(f"→ {PROCESSING_URL.replace('http://', '')}")
+
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(f"{PROCESSING_URL}/filter", json={
                 "image_path": image_path,
@@ -36,6 +41,7 @@ def register_processing_tools(mcp: FastMCP):
             return f"Error: Processing service returned {resp.status_code} - {resp.text}"
         
         data = resp.json()
+        logger.info("← processing completed")
         return json.dumps(data, indent=2)
 
     @mcp.tool()
@@ -54,6 +60,10 @@ def register_processing_tools(mcp: FastMCP):
           
         RETURNS: JSON containing the path to the anonymized image and the number of faces found.
         """
+        logger.info("Tool: blur_faces_in_image")
+        logger.info(f"Image: {image_path}")
+        logger.info(f"→ {PROCESSING_URL.replace('http://', '')}")
+
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(f"{PROCESSING_URL}/blur_faces", json={
                 "image_path": image_path,
@@ -63,4 +73,6 @@ def register_processing_tools(mcp: FastMCP):
         if resp.status_code != 200:
             return f"Error: Processing service returned {resp.status_code} - {resp.text}"
 
-        return json.dumps(resp.json(), indent=2)
+        data = resp.json()
+        logger.info(f"← {data.get('faces_found', 0)} faces anonymized")
+        return json.dumps(data, indent=2)
