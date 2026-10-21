@@ -10,11 +10,19 @@ class MockFastMCP:
     def tool(self, *args, **kwargs): return lambda f: f
     def run(self, *args, **kwargs): pass
 
+_orig_fastmcp = sys.modules.get('mcp.server.fastmcp')
 mock_fastmcp_module = MagicMock()
 mock_fastmcp_module.FastMCP = MockFastMCP
 sys.modules['mcp.server.fastmcp'] = mock_fastmcp_module
 
-import main
+try:
+    import main
+finally:
+    if _orig_fastmcp is not None:
+        sys.modules['mcp.server.fastmcp'] = _orig_fastmcp
+    else:
+        sys.modules.pop('mcp.server.fastmcp', None)
+
 
 def test_full_image_analysis_prompt():
     """Verify the prompt template injects variables correctly."""
