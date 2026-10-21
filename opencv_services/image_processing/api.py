@@ -14,8 +14,15 @@ from opencv_services.image_processing.opencv_ops import FILTER_REGISTRY
 
 app = FastAPI(title="Image Processing Service (OpenCV)")
 
-DATA_DIR = Path(os.getenv("DATA_DIR", "./data")).resolve()
-OUTPUT_DIR = DATA_DIR / "outputs"
+try:
+    from core.config.loader import get_config
+    cfg = get_config()
+    DATA_DIR = cfg.storage.data_dir.resolve()
+    OUTPUT_DIR = cfg.storage.outputs_dir.resolve()
+except Exception:
+    DATA_DIR = Path(os.getenv("DATA_DIR", "./data")).resolve()
+    OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", str(DATA_DIR / "outputs"))).resolve()
+
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 @app.get("/health")
