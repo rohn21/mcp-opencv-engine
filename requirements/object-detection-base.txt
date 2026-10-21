@@ -1,0 +1,8 @@
+# Object Detection Service — Base dependencies (framework-agnostic).
+# Include one of object-detection-cpu.txt or object-detection-gpu.txt alongside this file.
+fastapi==0.115.0
+uvicorn>=0.30.0
+ultralytics==8.3.0
+opencv-python-headless>=4.10.0.84
+numpy==1.26.4
+pydantic>=2.10.0

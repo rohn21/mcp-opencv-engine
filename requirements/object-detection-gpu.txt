@@ -1,0 +1,5 @@
+# Object Detection Service — GPU (CUDA) PyTorch wheels.
+# Requires NVIDIA GPU with CUDA drivers installed.
+-r object-detection-base.txt
+torch>=2.4.1,!=2.4.0
+torchvision>=0.19.1

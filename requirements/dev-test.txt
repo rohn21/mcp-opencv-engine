@@ -1,0 +1,4 @@
+# Development and testing dependencies.
+pytest>=9.0.0
+pytest-asyncio>=1.0.0
+pytest-httpx>=0.30.0

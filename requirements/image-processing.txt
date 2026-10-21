@@ -1,0 +1,6 @@
+# Image Processing Service (OpenCV) — CPU-only, no ML frameworks needed.
+fastapi==0.115.0
+uvicorn>=0.30.0
+opencv-python-headless>=4.10.0.84
+numpy==1.26.4
+pydantic>=2.10.0
