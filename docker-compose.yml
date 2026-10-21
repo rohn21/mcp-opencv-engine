@@ -14,6 +14,7 @@ services:
       - PROCESSING_SERVICE_URL=http://image-processing:8002
       - OCR_SERVICE_URL=http://ocr-service:8003
       - DATA_DIR=/app/data
+      - MCP_TRANSPORT=streamable-http
     volumes:
       - ./data:/app/data
     depends_on:

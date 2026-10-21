@@ -1,5 +1,15 @@
 import os
+import sys
 import json
+
+# Ensure mcp_gateway directory and project root are in sys.path
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+if CURRENT_DIR not in sys.path:
+    sys.path.insert(0, CURRENT_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from mcp.server.fastmcp import FastMCP
 from tools.detection_tools import register_detection_tools
 from tools.processing_tools import register_processing_tools
@@ -7,7 +17,6 @@ from utils.assets_manager import list_available_images
 
 mcp = FastMCP(
     name="CV-MCP-Gateway",
-    version="1.0.0",
     host="0.0.0.0",
     port=8000,
 )
@@ -112,6 +121,13 @@ tool results.
 """
 
 if __name__ == "__main__":
-    mcp.run(
-        transport="streamable-http",
+    import argparse
+    parser = argparse.ArgumentParser(description="MCP Gateway Server")
+    parser.add_argument(
+        "--transport",
+        choices=["stdio", "streamable-http", "sse"],
+        default=os.getenv("MCP_TRANSPORT", "stdio"),
+        help="Transport type (stdio, streamable-http, or sse). Defaults to stdio or MCP_TRANSPORT env.",
     )
+    args, _ = parser.parse_known_args()
+    mcp.run(transport=args.transport)

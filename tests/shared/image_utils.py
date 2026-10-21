@@ -11,8 +11,11 @@ def validate_image(image_path: str, allowed_base_dir: str) -> tuple[bool, str]:
 
     if allowed_base_dir:
         base_dir = Path(allowed_base_dir).resolve()
-        if not str(path).startswith(str(base_dir)):
-            return False, "Security Error: Access denied to path outside allowed directory."
+        try:
+            path.relative_to(base_dir)
+        except ValueError:
+            if not str(path).lower().startswith(str(base_dir).lower()):
+                return False, "Security Error: Access denied to path outside allowed directory."
 
     if not path.exists():
         return False, f"File not found: {image_path}"

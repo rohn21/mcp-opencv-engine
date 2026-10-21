@@ -82,13 +82,18 @@ The **MCP Gateway** is a lightweight FastMCP server that receives tool calls fro
 
 ```bash
 # 1. Create and activate virtual environment
+# On Linux / macOS:
 python3 -m venv .venv
 source .venv/bin/activate
 
-# 2. Install dependencies
-pip install -r mcp_gateway/requirements.txt
+# On Windows (PowerShell):
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 
-# 3. Start each microservice in a separate terminal
+# 2. Install dependencies (unified cross-platform requirements)
+pip install -r requirements.txt
+
+# 3. Start each microservice in separate terminals (or background jobs)
 uvicorn opencv_services.object_detection.api:app --host 0.0.0.0 --port 8001
 uvicorn opencv_services.image_processing.api:app --host 0.0.0.0 --port 8002
 uvicorn opencv_services.ocr_service.api:app --host 0.0.0.0 --port 8003

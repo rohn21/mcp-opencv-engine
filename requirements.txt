@@ -1,0 +1,23 @@
+# MCP OpenCV Engine - Unified Dependencies
+# Compatible across Windows, Linux, macOS (CPU, CUDA, MPS)
+
+# MCP Gateway
+mcp[cli]>=1.23.0,<2.0.0
+fastapi==0.115.0
+uvicorn>=0.30.0
+httpx>=0.27.0
+pydantic>=2.10.0
+
+# OpenCV & Image Processing
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+pillow>=10.0.0
+
+# Object Detection (YOLOv8)
+ultralytics==8.3.0
+torch>=2.4.1,!=2.4.0
+torchvision>=0.19.1
+
+# OCR Service
+easyocr==1.7.1
+pytesseract==0.3.13
