@@ -4,26 +4,38 @@ venv/
 env/
 ENV/
 
-# Python Cache
-__pycache__/
-*.py[cod]
-*$py.class
+# Local Environment & Secrets
+.env
+.env.*
+!.env.example
 
-# IDE / Editor Files
+# Local Client & IDE Configurations
+.agents/
+.cursor/
+*.bak_*
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# Project Data & Models
-data/outputs/
-data/inputs/
-*.pt      # Ignore PyTorch YOLOv8 weights like yolov8n.pt if they are too large
+# Python Cache & Testing
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Project Data & Generated Outputs
+data/outputs/*
+!data/outputs/.gitkeep
+*.pt
 *.pth
 
-# Logs
+# Logs & Runtime State
 *.log
 /tmp/
+.runtime/
 
 # OS Files
 .DS_Store
